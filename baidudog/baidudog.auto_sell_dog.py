@@ -9,7 +9,7 @@ requests.packages.urllib3.disable_warnings()
 
 UA="Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Mobile Safari/537.36"
 user_cookie={
-"mpfwsx":"BAIDUID=B39B68B741F2079143F808539FDCCF3F:FG=1; FP_UID=4e8d3ec5a9356a67ba1c951bb769a27b; BDUSS=1JjVjRvbmlGU0N-ai0tT0IzVUQ1bzA0S2N4d3pvRWRoTTJFSXFzQ0NzU1NJYWxhQVFBQUFBJCQAAAAAAAAAAAEAAABcEL8nbXBmd3N4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJKUgVqSlIFaR",
+"wushuxiao":"BDUSS=pgElm1Xf5gIBxZZDPwI4Yw==; OPENBDUSS=QAAAAEAAAD2gW_dU7yMhmP9FUsLq54YqDifx4I2uXbId99_JkRla5bVkn1jzrgpWjrqQkX256-7XmES53MkJyr5kajhJMFNoF2LRzU-nJAalzIWjlwfVLeNJL_fZ1GSTg-MqD5s2gAUG0c-zK6Hf8Mrr090oo0djTEGL3ogVLPZHObfAonZZgA; STOKEN=a1aea65f7d7df1e854d2ca46938e13fef3ec3b7a583fd0c798f6a99fb35049af; Hm_lvt_2a9b55018981a1911dd3914ca3f9bcf6=1590911944,1590912062; Hm_lpvt_2a9b55018981a1911dd3914ca3f9bcf6=1590912062",
 "mengpanfei":"BDUSS=pgElm1Xf5gIBxZZDPwI4Yw==; OPENBDUSS=AAAAEAAAALL3MFJLitAN1WRaTuJzLPoQjSVQmnALAUsRns5VflcWEPdjBvjtiO5ruGIayHC1INQDuA0YMnhcRo6hANAEXDRR8Pm8WeUPQJL7cY5W-EsyLkHAwYrhWVdzVbx1mrOZ-oDTaMz1FESlUq3fLnYQu5jTEGL3ogVLPZHObfAonZZgAQ; STOKEN=bd7912d94742c40af1e24867250760c5bb3c3decb8247a7760cdf88aff8f4e52; Hm_lvt_2a9b55018981a1911dd3914ca3f9bcf6=1589687943,1589687972,1589693967,1589694788; Hm_lpvt_2a9b55018981a1911dd3914ca3f9bcf6=1589711422",
 "leleyi":'BAIDUID=F588BFA169DCB675202758236DC1EF67:FG=1; FP_UID=d3f4458488a0486582dba99131f4bd01; BDUSS=0JCalJ5OW5sSUFObXBqWlFibFF5RW95TTQ3ZHNNYzg1MVlHSjFkWnhZQ25Jc3hhQVFBQUFBJCQAAAAAAAAAAAEAAAD7u37OAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKeVpFqnlaRaS',
 "yophy":"BAIDUID=4EE5E3EBE7DCE13EEF62D288102031AC:FG=1; FP_UID=3fdf683dad85310b8189c693f8819a2a; BDUSS=2J-WTFvcUhWNkFEUVpsNmloaXFiZklKM1Nld21rSkNpQnBCTXB-ZnV2bE5QYzlhQVFBQUFBJCQAAAAAAAAAAAEAAACqJOU~0-rOtLn9yKXM7NLRx-cAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE2wp1pNsKdaV",
@@ -72,7 +72,9 @@ def get_my_dogs(username="mengpanfei"):
         pageNo+=1
         for dog in jr["dataList"]:
             dogs.append([dog["id"].zfill(8),dog["petId"],dog["rareDegree"],dog["generation"],dog["shelfStatus"],dog["chainStatus"],dog["amount"], funny_type(dog["id"])])
+#             print(type(dog["amount"]), dog["amount"])
         time.sleep(2)
+        break #调试时只取10只狗
     return dogs
 
 
@@ -344,8 +346,10 @@ def sell_dog(petId, amount, username="mengpanfei"):
 #     amount="223"
     param={"petId":petId,"amount":str(amount),"requestId":int(time.time() * 1000),"appId":1,"tpl":"","timeStamp":"null","nounce":"null","token":"null","phoneType":"android"}
     url="https://pet-chain.duxiaoman.com/data/market/sale/shelf/create"
+    print(username)
     headers=get_httpheader(username)
     r=requests.post(url,data=json.dumps(param),headers=headers,verify=False)
+    print(r.json())
     return r.json()["errorMsg"]
 
 
@@ -361,19 +365,25 @@ def cancel_sell_dog(petId, username="mengpanfei"):
 
 
 # 卖掉狗窝里的狗
-dogs=get_my_dogs("mengpanfei")
+if len(sys.argv)!=2:
+    sys.exit(0)
+username=sys.argv[1]
+dogs=get_my_dogs(username)
 dogcount=0
 for dog in dogs:
     if dog[2] >= 2 : continue # 级别
     if dog[7] in ("0_0_0") : continue # 靓号类型
     if not dog[7].startswith("tail3"): continue #先只卖尾豹子号
     if dog[0][-1] in ("6","8","9"): continue # 689尾号不卖
+#     if dog[6] != "0.00": continue #已经出价了的，不动
     if dogcount>300: break # 每次卖300。 太多了会被封号。
-    cancel_sell_dog(dog[1])
+    cancel_sell_dog(dog[1],username)
     time.sleep(2)
-    price="2666.{tn}{tn}".format(tn=dog[0][-1])
-    sell_dog(dog[1],price)
+    tn=dog[0][-1]
+    if tn=="0": tn=6
+    price="{k}666.{tn}{tn}".format(k=random.choice("22223334456789"), tn=tn)
+    sell_dog(dog[1],price,username)
     dogcount+=1
-#     print(time.time(),dog[0],price,dog[1],dog[7])
+    print(time.time(),dog[0],price,dog[1],dog[7])
     time.sleep(5)
-print(time.time(),"\tdone")    
+print(time.time(),"\tdone",username)    
