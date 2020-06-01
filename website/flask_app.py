@@ -8,7 +8,7 @@ app = flask.Flask(__name__, template_folder='./templates', static_folder='./stat
 
 @app.route('/')
 def index():
-    return "域名出售，联系mengpanfei@qq.com"
+    return "域名出售，联系 mengpanfei@qq.com 。"
 
 
 # 启动1   $PYTHON3 flask_app.py 80 debug
