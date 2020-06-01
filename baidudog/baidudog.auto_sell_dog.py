@@ -74,7 +74,7 @@ def get_my_dogs(username="mengpanfei"):
             dogs.append([dog["id"].zfill(8),dog["petId"],dog["rareDegree"],dog["generation"],dog["shelfStatus"],dog["chainStatus"],dog["amount"], funny_type(dog["id"])])
 #             print(type(dog["amount"]), dog["amount"])
         time.sleep(2)
-        break #调试时只取10只狗
+        # break #调试时只取10只狗
     return dogs
 
 
@@ -346,10 +346,10 @@ def sell_dog(petId, amount, username="mengpanfei"):
 #     amount="223"
     param={"petId":petId,"amount":str(amount),"requestId":int(time.time() * 1000),"appId":1,"tpl":"","timeStamp":"null","nounce":"null","token":"null","phoneType":"android"}
     url="https://pet-chain.duxiaoman.com/data/market/sale/shelf/create"
-    print(username)
+    # print(username)
     headers=get_httpheader(username)
     r=requests.post(url,data=json.dumps(param),headers=headers,verify=False)
-    print(r.json())
+    # print(r.json())
     return r.json()["errorMsg"]
 
 
@@ -375,15 +375,15 @@ for dog in dogs:
     if dog[7] in ("0_0_0") : continue # 靓号类型
     if not dog[7].startswith("tail3"): continue #先只卖尾豹子号
     if dog[0][-1] in ("6","8","9"): continue # 689尾号不卖
-#     if dog[6] != "0.00": continue #已经出价了的，不动
-    if dogcount>300: break # 每次卖300。 太多了会被封号。
-    cancel_sell_dog(dog[1],username)
-    time.sleep(2)
+    if dog[6] != "0.00": continue #已经出价了的，不动
+    if dogcount>100: break # 每次卖N。 太多了会被封号?
+    # cancel_sell_dog(dog[1],username)
+    # time.sleep(2)
     tn=dog[0][-1]
     if tn=="0": tn=6
     price="{k}666.{tn}{tn}".format(k=random.choice("22223334456789"), tn=tn)
     sell_dog(dog[1],price,username)
     dogcount+=1
-    print(time.time(),dog[0],price,dog[1],dog[7])
+    # print(time.time(),dog[0],price,dog[1],dog[7])
     time.sleep(5)
-print(time.time(),"\tdone",username)    
+print(time.time(),"\tdone\t",username)    

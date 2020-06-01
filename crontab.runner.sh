@@ -63,7 +63,7 @@ x=0
 x=0
     _ds=`date -d "-1 hour $nowtime" +%Y%m%d`
     _hour=`date -d "-1 hour $nowtime" +%H`
-#      cd baidudog && $PYTHON baidudog.auto_sell_dog.py >> ../log/baidudog.auto_sell_dog.py.log &
+     cd baidudog && $PYTHON baidudog.auto_sell_dog.py mengpanfei >> baidudog.auto_sell_dog.py.mengpanfei.log &
 )&
 
 
@@ -72,7 +72,7 @@ x=0
 x=0
     _ds=`date -d "-1 hour $nowtime" +%Y%m%d`
     _hour=`date -d "-1 hour $nowtime" +%H`
-     cd baidudog && $PYTHON baidudog.auto_sell_dog.py mengpanfei >> ../log/baidudog.auto_sell_dog.py.log &
+    #  cd baidudog && $PYTHON baidudog.auto_sell_dog.py mengpanfei >> ../log/baidudog.auto_sell_dog.py.log &
 )&
 
 
